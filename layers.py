@@ -62,8 +62,63 @@ class SoftmaxWithLoss():
 
         return dx
 
+class Embedding(nn.Module):
+    def __init__(self, W):
+        self.params = [W]
+        self.grads = [np.zeros_like(W)]
+        self.idx = None
 
+    def forward(self, idx: np.array):
+        W, = self.params
+        self.idx = idx
+        return W[idx]
+    
+    def backward(self, dout):
+        dW, = self.grads
+        dW[...]=0
 
+        np.add.at(dW, self.idx, dout)
+        return None
+    
+class EmbeddingDot(nn.Module):
+    def __init__(self, W):
+        self.params = [W]
+        self.grads = [np.zeros_like(W)]
+        self.idx = None
+
+    def forward(self, idx: np.array):
+        W, = self.params
+        self.idx = idx
+        return W[idx]
+    
+    def backward(self, dout):
+        dW, = self.grads
+        dW[...]=0
+
+        np.add.at(dW, self.idx, dout)
+        return None   
+        
+class UnigramSampler:
+    def __init__(self):
+    
+    def get_negative_sample(self):
+        
+class SigmoidWithLoss():
+    def __init__(self):
+        self.params, self.grads = [], []
+        self.y = None  # sigmoid의 출력
+        self.t = None  # 정답 레이블
+
+    def forward(self, y, t):
+        self.y = sigmoid(y)
+        self.t = t
+        loss = cross_entropy_error(self.y, t)
+        return loss
+
+    def backward(self, dout):
+        self.grads = (self.y-self.t)/(self.y*(1-self.y))
+
+        return None
 
 
 
